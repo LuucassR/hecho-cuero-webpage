@@ -18,16 +18,26 @@ type State = { items: CartItem[] };
 type Action =
   | { type: "HYDRATE"; items: CartItem[] }
   | { type: "ADD_ITEM"; item: CartItem }
-  | { type: "REMOVE_ITEM"; productId: number }
-  | { type: "UPDATE_QUANTITY"; productId: number; quantity: number }
+  | { type: "REMOVE_ITEM"; productId: number; variantId: number | null }
+  | { type: "UPDATE_QUANTITY"; productId: number; variantId: number | null; quantity: number }
   | { type: "CLEAR" };
+
+function isSameLine(
+  item: CartItem,
+  productId: number,
+  variantId: number | null,
+) {
+  return item.productId === productId && item.variantId === variantId;
+}
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case "HYDRATE":
       return { items: action.items };
     case "ADD_ITEM": {
-      const existing = state.items.find((i) => i.productId === action.item.productId);
+      const existing = state.items.find((i) =>
+        isSameLine(i, action.item.productId, action.item.variantId),
+      );
       if (existing) {
         const quantity = Math.min(
           existing.quantity + action.item.quantity,
@@ -35,18 +45,22 @@ function reducer(state: State, action: Action): State {
         );
         return {
           items: state.items.map((i) =>
-            i.productId === action.item.productId ? { ...i, quantity } : i,
+            isSameLine(i, action.item.productId, action.item.variantId)
+              ? { ...i, quantity }
+              : i,
           ),
         };
       }
       return { items: [...state.items, action.item] };
     }
     case "REMOVE_ITEM":
-      return { items: state.items.filter((i) => i.productId !== action.productId) };
+      return {
+        items: state.items.filter((i) => !isSameLine(i, action.productId, action.variantId)),
+      };
     case "UPDATE_QUANTITY":
       return {
         items: state.items.map((i) =>
-          i.productId === action.productId
+          isSameLine(i, action.productId, action.variantId)
             ? { ...i, quantity: Math.max(1, Math.min(action.quantity, i.stock)) }
             : i,
         ),
@@ -61,8 +75,8 @@ function reducer(state: State, action: Action): State {
 type CartContextValue = {
   items: CartItem[];
   addItem: (item: CartItem) => void;
-  removeItem: (productId: number) => void;
-  updateQuantity: (productId: number, quantity: number) => void;
+  removeItem: (productId: number, variantId: number | null) => void;
+  updateQuantity: (productId: number, variantId: number | null, quantity: number) => void;
   clear: () => void;
   subtotalCents: number;
   totalQuantity: number;
@@ -102,13 +116,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setIsOpen(true);
   }, []);
 
-  const removeItem = useCallback((productId: number) => {
-    dispatch({ type: "REMOVE_ITEM", productId });
+  const removeItem = useCallback((productId: number, variantId: number | null) => {
+    dispatch({ type: "REMOVE_ITEM", productId, variantId });
   }, []);
 
-  const updateQuantity = useCallback((productId: number, quantity: number) => {
-    dispatch({ type: "UPDATE_QUANTITY", productId, quantity });
-  }, []);
+  const updateQuantity = useCallback(
+    (productId: number, variantId: number | null, quantity: number) => {
+      dispatch({ type: "UPDATE_QUANTITY", productId, variantId, quantity });
+    },
+    [],
+  );
 
   const clear = useCallback(() => dispatch({ type: "CLEAR" }), []);
 

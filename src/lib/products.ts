@@ -75,6 +75,13 @@ export async function getProductBySlug(slug: string) {
     with: {
       images: { orderBy: (img, { asc }) => [asc(img.position)] },
       category: true,
+      options: {
+        orderBy: (opt, { asc }) => [asc(opt.position)],
+        with: { values: { orderBy: (val, { asc }) => [asc(val.position)] } },
+      },
+      variants: {
+        with: { variantValues: { with: { optionValue: true } } },
+      },
     },
   });
 }

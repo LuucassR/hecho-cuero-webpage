@@ -3,9 +3,11 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { ProductGallery } from "@/components/product/ProductGallery";
+import { ProductFeatures } from "@/components/product/ProductFeatures";
 import { AddToCartForm } from "@/components/product/AddToCartForm";
 import { formatCurrency } from "@/lib/format";
 import { getProductBySlug } from "@/lib/products";
+import { mapVariant } from "@/lib/variants";
 
 export async function generateMetadata({
   params,
@@ -26,6 +28,13 @@ export default async function ProductPage({
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
+  const options = product.options.map((opt) => ({
+    id: opt.id,
+    name: opt.name,
+    values: opt.values.map((v) => ({ id: v.id, value: v.value })),
+  }));
+  const variants = product.variants.map(mapVariant);
+
   return (
     <Container className="py-12">
       <nav className="mb-6 text-sm text-muted">
@@ -45,10 +54,20 @@ export default async function ProductPage({
       </nav>
 
       <div className="grid gap-10 lg:grid-cols-2">
-        <ProductGallery
-          images={product.images.map((img) => ({ url: img.url, alt: img.alt }))}
-          productName={product.name}
-        />
+        <div>
+          <ProductGallery
+            images={product.images.map((img) => ({ url: img.url, alt: img.alt }))}
+            productName={product.name}
+          />
+          {product.specifications.length > 0 && (
+            <div className="mt-6 border-t border-border pt-6">
+              <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-muted">
+                Lo que hace especial a esta pieza
+              </h2>
+              <ProductFeatures items={product.specifications} />
+            </div>
+          )}
+        </div>
 
         <div>
           <h1 className="font-display text-3xl text-brand-900">{product.name}</h1>
@@ -67,24 +86,10 @@ export default async function ProductPage({
               priceCents={product.priceCents}
               imageUrl={product.images[0]?.url ?? null}
               stock={product.stock}
+              options={options}
+              variants={variants}
             />
           </div>
-
-          {product.specifications.length > 0 && (
-            <div className="mt-8 border-t border-border pt-6">
-              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
-                Especificaciones
-              </h2>
-              <ul className="space-y-1.5 text-sm text-brand-800">
-                {product.specifications.map((spec, i) => (
-                  <li key={i} className="flex gap-2">
-                    <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand-500" />
-                    <span>{spec}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
         </div>
       </div>
     </Container>

@@ -1,5 +1,5 @@
 export const BANK_TRANSFER_DETAILS = {
-  titular: "Hecho Cuero",
-  cbu: "0000000000000000000000",
-  alias: "HECHO.CUERO.SF",
+  titular: "Benjamin Lualdi",
+  cbu: "0000003100000740266229",
+  alias: "cuero.benja",
 } as const;

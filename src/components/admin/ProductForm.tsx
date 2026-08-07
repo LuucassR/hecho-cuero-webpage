@@ -17,6 +17,7 @@ export function ProductForm({
   categories,
   defaultValues,
   submitLabel,
+  hasVariants = false,
 }: {
   action: (state: ProductFormState, formData: FormData) => Promise<ProductFormState>;
   categories: Category[];
@@ -31,6 +32,7 @@ export function ProductForm({
     active: boolean;
   };
   submitLabel: string;
+  hasVariants?: boolean;
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
   const [slugTouched, setSlugTouched] = useState(Boolean(defaultValues));
@@ -96,8 +98,15 @@ export function ProductForm({
             type="number"
             min={0}
             required
+            readOnly={hasVariants}
             defaultValue={defaultValues?.stock}
+            className={hasVariants ? "bg-brand-100 text-muted" : undefined}
           />
+          {hasVariants && (
+            <p className="mt-1 text-xs text-muted">
+              Se calcula automáticamente según el stock de las variantes.
+            </p>
+          )}
         </div>
       </div>
 

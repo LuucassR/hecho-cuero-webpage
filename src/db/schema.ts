@@ -4,6 +4,7 @@ import {
   integer,
   pgEnum,
   pgTable,
+  primaryKey,
   serial,
   text,
   timestamp,
@@ -14,7 +15,10 @@ export const paymentMethodEnum = pgEnum("payment_method", [
   "tarjeta_debito",
   "mercado_pago",
   "transferencia",
+  "efectivo",
 ]);
+
+export const deliveryMethodEnum = pgEnum("delivery_method", ["envio", "retiro"]);
 
 export const orderStatusEnum = pgEnum("order_status", [
   "pendiente_pago",
@@ -63,6 +67,55 @@ export const productImages = pgTable("product_images", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// A product-specific attribute like "Color" or "Talle".
+export const productOptions = pgTable("product_options", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id")
+    .notNull()
+    .references(() => products.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  position: integer("position").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// A selectable value for an option, e.g. "Rojo" under "Color".
+export const productOptionValues = pgTable("product_option_values", {
+  id: serial("id").primaryKey(),
+  optionId: integer("option_id")
+    .notNull()
+    .references(() => productOptions.id, { onDelete: "cascade" }),
+  value: text("value").notNull(),
+  position: integer("position").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// One purchasable combination of option values (e.g. Rojo / M), with its own stock.
+export const productVariants = pgTable("product_variants", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id")
+    .notNull()
+    .references(() => products.id, { onDelete: "cascade" }),
+  sku: text("sku"),
+  priceCents: integer("price_cents"),
+  stock: integer("stock").notNull().default(0),
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Join table: which option value each variant selects, one row per option.
+export const productVariantValues = pgTable(
+  "product_variant_values",
+  {
+    variantId: integer("variant_id")
+      .notNull()
+      .references(() => productVariants.id, { onDelete: "cascade" }),
+    optionValueId: integer("option_value_id")
+      .notNull()
+      .references(() => productOptionValues.id, { onDelete: "cascade" }),
+  },
+  (table) => [primaryKey({ columns: [table.variantId, table.optionValueId] })],
+);
+
 // Single-row settings table (id is always 1).
 export const storeSettings = pgTable("store_settings", {
   id: integer("id").primaryKey().default(1),
@@ -75,10 +128,11 @@ export const orders = pgTable("orders", {
   customerName: text("customer_name").notNull(),
   customerEmail: text("customer_email").notNull(),
   customerPhone: text("customer_phone").notNull(),
-  shippingStreet: text("shipping_street").notNull(),
-  shippingCity: text("shipping_city").notNull(),
-  shippingProvince: text("shipping_province").notNull(),
-  shippingPostalCode: text("shipping_postal_code").notNull(),
+  deliveryMethod: deliveryMethodEnum("delivery_method").notNull().default("envio"),
+  shippingStreet: text("shipping_street"),
+  shippingCity: text("shipping_city"),
+  shippingProvince: text("shipping_province"),
+  shippingPostalCode: text("shipping_postal_code"),
   shippingNotes: text("shipping_notes"),
   paymentMethod: paymentMethodEnum("payment_method").notNull(),
   installments: integer("installments"),
@@ -100,7 +154,11 @@ export const orderItems = pgTable("order_items", {
   productId: integer("product_id").references(() => products.id, {
     onDelete: "set null",
   }),
+  productVariantId: integer("product_variant_id").references(() => productVariants.id, {
+    onDelete: "set null",
+  }),
   productName: text("product_name").notNull(),
+  variantLabel: text("variant_label"),
   productImageUrl: text("product_image_url"),
   unitPriceCents: integer("unit_price_cents").notNull(),
   quantity: integer("quantity").notNull(),
@@ -117,12 +175,49 @@ export const productsRelations = relations(products, ({ one, many }) => ({
     references: [categories.id],
   }),
   images: many(productImages),
+  options: many(productOptions),
+  variants: many(productVariants),
 }));
 
 export const productImagesRelations = relations(productImages, ({ one }) => ({
   product: one(products, {
     fields: [productImages.productId],
     references: [products.id],
+  }),
+}));
+
+export const productOptionsRelations = relations(productOptions, ({ one, many }) => ({
+  product: one(products, {
+    fields: [productOptions.productId],
+    references: [products.id],
+  }),
+  values: many(productOptionValues),
+}));
+
+export const productOptionValuesRelations = relations(productOptionValues, ({ one, many }) => ({
+  option: one(productOptions, {
+    fields: [productOptionValues.optionId],
+    references: [productOptions.id],
+  }),
+  variantValues: many(productVariantValues),
+}));
+
+export const productVariantsRelations = relations(productVariants, ({ one, many }) => ({
+  product: one(products, {
+    fields: [productVariants.productId],
+    references: [products.id],
+  }),
+  variantValues: many(productVariantValues),
+}));
+
+export const productVariantValuesRelations = relations(productVariantValues, ({ one }) => ({
+  variant: one(productVariants, {
+    fields: [productVariantValues.variantId],
+    references: [productVariants.id],
+  }),
+  optionValue: one(productOptionValues, {
+    fields: [productVariantValues.optionValueId],
+    references: [productOptionValues.id],
   }),
 }));
 
@@ -138,5 +233,9 @@ export const orderItemsRelations = relations(orderItems, ({ one }) => ({
   product: one(products, {
     fields: [orderItems.productId],
     references: [products.id],
+  }),
+  variant: one(productVariants, {
+    fields: [orderItems.productVariantId],
+    references: [productVariants.id],
   }),
 }));

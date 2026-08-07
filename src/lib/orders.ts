@@ -26,6 +26,14 @@ export const PAYMENT_METHOD_LABELS = {
   tarjeta_debito: "Tarjeta de débito",
   mercado_pago: "Mercado Pago",
   transferencia: "Transferencia bancaria",
+  efectivo: "Efectivo en el local",
 } as const;
 
 export type PaymentMethod = keyof typeof PAYMENT_METHOD_LABELS;
+
+export const DELIVERY_METHOD_LABELS = {
+  envio: "Envío a domicilio",
+  retiro: "Retiro en el local",
+} as const;
+
+export type DeliveryMethod = keyof typeof DELIVERY_METHOD_LABELS;

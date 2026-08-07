@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { orders } from "@/db/schema";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { OrderStatusSelect } from "@/components/admin/OrderStatusSelect";
-import { PAYMENT_METHOD_LABELS } from "@/lib/orders";
+import { DELIVERY_METHOD_LABELS, PAYMENT_METHOD_LABELS } from "@/lib/orders";
 
 export default async function AdminOrderDetailPage({
   params,
@@ -40,12 +40,22 @@ export default async function AdminOrderDetailPage({
 
         <div className="rounded-2xl border border-border bg-surface p-5">
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
-            Envío
+            Entrega
           </h2>
-          <p className="text-sm text-brand-800">{order.shippingStreet}</p>
-          <p className="text-sm text-brand-800">
-            {order.shippingCity}, {order.shippingProvince} ({order.shippingPostalCode})
-          </p>
+          <p className="text-sm text-brand-900">{DELIVERY_METHOD_LABELS[order.deliveryMethod]}</p>
+          {order.deliveryMethod === "envio" && (
+            <p className="mt-1 text-sm text-muted">
+              Coordinar dirección y costo por WhatsApp.
+            </p>
+          )}
+          {(order.shippingStreet || order.shippingCity) && (
+            <p className="mt-1 text-sm text-brand-800">
+              {[order.shippingStreet, order.shippingCity, order.shippingProvince]
+                .filter(Boolean)
+                .join(", ")}
+              {order.shippingPostalCode ? ` (${order.shippingPostalCode})` : ""}
+            </p>
+          )}
           {order.shippingNotes && (
             <p className="mt-1 text-sm text-muted">{order.shippingNotes}</p>
           )}
@@ -70,7 +80,11 @@ export default async function AdminOrderDetailPage({
           {order.items.map((item) => (
             <li key={item.id} className="flex justify-between gap-2 py-2 first:pt-0">
               <span className="text-brand-800">
-                {item.productName} × {item.quantity}
+                {item.productName}
+                {item.variantLabel && (
+                  <span className="text-muted"> ({item.variantLabel})</span>
+                )}{" "}
+                × {item.quantity}
               </span>
               <span className="text-brand-900">{formatCurrency(item.lineTotalCents)}</span>
             </li>

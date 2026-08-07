@@ -8,11 +8,13 @@ import { LinkButton } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { formatCurrency, formatDate } from "@/lib/format";
 import {
+  DELIVERY_METHOD_LABELS,
   ORDER_STATUS_LABELS,
   ORDER_STATUS_TONES,
   PAYMENT_METHOD_LABELS,
 } from "@/lib/orders";
 import { BANK_TRANSFER_DETAILS } from "@/lib/payments/bank-transfer";
+import { STORE_INFO } from "@/lib/store-info";
 
 export const metadata: Metadata = {
   title: "Pedido confirmado — Hecho Cuero",
@@ -82,7 +84,13 @@ export default async function OrderConfirmationPage({
           </div>
         </div>
 
-        <div className="mt-5 border-t border-border pt-4 text-sm text-brand-800">
+        <div className="mt-5 space-y-1 border-t border-border pt-4 text-sm text-brand-800">
+          <p>
+            Entrega:{" "}
+            <span className="font-medium text-brand-900">
+              {DELIVERY_METHOD_LABELS[order.deliveryMethod]}
+            </span>
+          </p>
           <p>
             Método de pago:{" "}
             <span className="font-medium text-brand-900">
@@ -93,6 +101,27 @@ export default async function OrderConfirmationPage({
             </span>
           </p>
         </div>
+
+        {order.deliveryMethod === "retiro" && (
+          <div className="mt-4 rounded-xl bg-brand-50 p-4 text-sm text-brand-800">
+            <p className="font-medium text-brand-900">Retiro en el local</p>
+            <p className="mt-1">{STORE_INFO.address}</p>
+            <p className="mt-1 text-muted">
+              {STORE_INFO.hoursDays}, de {STORE_INFO.hoursRanges.join(" y de ")}.
+            </p>
+            <p className="mt-2 text-muted">
+              Te avisamos por WhatsApp cuando esté listo para retirar.
+            </p>
+          </div>
+        )}
+
+        {order.deliveryMethod === "envio" && (
+          <div className="mt-4 rounded-xl bg-brand-50 p-4 text-sm text-brand-800">
+            <p className="text-muted">
+              Coordinamos el envío y su costo por WhatsApp al teléfono que dejaste.
+            </p>
+          </div>
+        )}
 
         {order.paymentMethod === "transferencia" && (
           <div className="mt-4 rounded-xl bg-brand-50 p-4 text-sm text-brand-800">

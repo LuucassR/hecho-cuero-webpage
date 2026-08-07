@@ -45,6 +45,12 @@ export function Header({ categories }: { categories: NavCategory[] }) {
               {cat.name}
             </Link>
           ))}
+          <Link
+            href="/regalos-corporativos"
+            className="text-sm font-medium text-brand-800 hover:text-brand-950"
+          >
+            Para Empresas
+          </Link>
         </nav>
 
         <div className="flex items-center gap-2">
@@ -95,6 +101,13 @@ export function Header({ categories }: { categories: NavCategory[] }) {
               {cat.name}
             </Link>
           ))}
+          <Link
+            href="/regalos-corporativos"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-brand-800 hover:bg-brand-100"
+            onClick={() => setMenuOpen(false)}
+          >
+            Para Empresas
+          </Link>
         </nav>
       )}
     </header>

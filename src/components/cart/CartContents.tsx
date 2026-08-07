@@ -24,7 +24,7 @@ export function CartContents({ onNavigate }: { onNavigate?: () => void }) {
     <div className="flex flex-1 flex-col">
       <ul className="flex-1 divide-y divide-border">
         {items.map((item) => (
-          <li key={item.productId} className="flex gap-4 py-4">
+          <li key={`${item.productId}-${item.variantId ?? "base"}`} className="flex gap-4 py-4">
             <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg">
               <ProductImage
                 src={item.imageUrl}
@@ -35,15 +35,20 @@ export function CartContents({ onNavigate }: { onNavigate?: () => void }) {
             </div>
             <div className="flex flex-1 flex-col justify-between">
               <div className="flex items-start justify-between gap-2">
-                <Link
-                  href={`/productos/${item.slug}`}
-                  onClick={onNavigate}
-                  className="text-sm font-medium text-brand-900 hover:underline"
-                >
-                  {item.name}
-                </Link>
+                <div>
+                  <Link
+                    href={`/productos/${item.slug}`}
+                    onClick={onNavigate}
+                    className="text-sm font-medium text-brand-900 hover:underline"
+                  >
+                    {item.name}
+                  </Link>
+                  {item.variantLabel && (
+                    <p className="text-xs text-muted">{item.variantLabel}</p>
+                  )}
+                </div>
                 <button
-                  onClick={() => removeItem(item.productId)}
+                  onClick={() => removeItem(item.productId, item.variantId)}
                   className="text-xs text-muted hover:text-red-700"
                   aria-label={`Quitar ${item.name}`}
                 >
@@ -54,7 +59,9 @@ export function CartContents({ onNavigate }: { onNavigate?: () => void }) {
                 <div className="flex items-center gap-2">
                   <button
                     className="flex h-7 w-7 items-center justify-center rounded-full border border-border text-brand-900 disabled:opacity-40"
-                    onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                    onClick={() =>
+                      updateQuantity(item.productId, item.variantId, item.quantity - 1)
+                    }
                     disabled={item.quantity <= 1}
                     aria-label="Restar"
                   >
@@ -63,7 +70,9 @@ export function CartContents({ onNavigate }: { onNavigate?: () => void }) {
                   <span className="w-6 text-center text-sm">{item.quantity}</span>
                   <button
                     className="flex h-7 w-7 items-center justify-center rounded-full border border-border text-brand-900 disabled:opacity-40"
-                    onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                    onClick={() =>
+                      updateQuantity(item.productId, item.variantId, item.quantity + 1)
+                    }
                     disabled={item.quantity >= item.stock}
                     aria-label="Sumar"
                   >

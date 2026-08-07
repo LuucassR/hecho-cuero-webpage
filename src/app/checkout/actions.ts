@@ -3,9 +3,10 @@
 import { randomUUID } from "node:crypto";
 import { eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { orderItems, orders, products } from "@/db/schema";
+import { orderItems, orders, productVariants, products } from "@/db/schema";
 import { checkoutSchema, type CheckoutInput } from "@/lib/validation/checkout";
 import { sendOrderConfirmationEmail } from "@/lib/email/send-order-confirmation";
+import { mapVariant, variantLabel } from "@/lib/variants";
 
 export type CreateOrderResult = { orderId: string } | { error: string };
 
@@ -21,36 +22,74 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
       const productIds = data.items.map((i) => i.productId);
       const dbProducts = await tx.query.products.findMany({
         where: inArray(products.id, productIds),
-        with: { images: { orderBy: (img, { asc }) => [asc(img.position)], limit: 1 } },
+        with: {
+          images: { orderBy: (img, { asc }) => [asc(img.position)], limit: 1 },
+          options: {
+            orderBy: (opt, { asc }) => [asc(opt.position)],
+            with: { values: { orderBy: (val, { asc }) => [asc(val.position)] } },
+          },
+          variants: { with: { variantValues: { with: { optionValue: true } } } },
+        },
       });
 
       const productMap = new Map(dbProducts.map((p) => [p.id, p]));
       let subtotalCents = 0;
       const itemsToInsert: (typeof orderItems.$inferInsert)[] = [];
+      const variantStockUpdates: { variantId: number; quantity: number }[] = [];
 
       for (const item of data.items) {
         const product = productMap.get(item.productId);
         if (!product || !product.active) {
           throw new CheckoutError(`Uno de los productos ya no está disponible.`);
         }
-        if (product.stock < item.quantity) {
-          throw new CheckoutError(`No hay stock suficiente de "${product.name}".`);
+
+        let unitPriceCents = product.priceCents;
+        let label: string | null = null;
+        let variantId: number | null = null;
+
+        if (product.variants.length > 0) {
+          const mappedVariants = product.variants.map(mapVariant);
+          const variant = mappedVariants.find((v) => v.id === item.variantId);
+          if (!variant || !variant.active) {
+            throw new CheckoutError(`Elegí las opciones de "${product.name}".`);
+          }
+          if (variant.stock < item.quantity) {
+            throw new CheckoutError(`No hay stock suficiente de "${product.name}".`);
+          }
+          unitPriceCents = variant.priceCents ?? product.priceCents;
+          label = variantLabel(
+            variant,
+            product.options.map((o) => ({
+              id: o.id,
+              name: o.name,
+              values: o.values.map((v) => ({ id: v.id, value: v.value })),
+            })),
+          );
+          variantId = variant.id;
+          variantStockUpdates.push({ variantId: variant.id, quantity: item.quantity });
+        } else {
+          if (product.stock < item.quantity) {
+            throw new CheckoutError(`No hay stock suficiente de "${product.name}".`);
+          }
         }
-        const lineTotalCents = product.priceCents * item.quantity;
+
+        const lineTotalCents = unitPriceCents * item.quantity;
         subtotalCents += lineTotalCents;
         itemsToInsert.push({
           orderId: "", // filled in after order insert
           productId: product.id,
+          productVariantId: variantId,
           productName: product.name,
+          variantLabel: label,
           productImageUrl: product.images[0]?.url ?? null,
-          unitPriceCents: product.priceCents,
+          unitPriceCents,
           quantity: item.quantity,
           lineTotalCents,
         });
       }
 
       const settings = await tx.query.storeSettings.findFirst();
-      const shippingCents = settings?.shippingFlatCents ?? 0;
+      const shippingCents = data.deliveryMethod === "retiro" ? 0 : (settings?.shippingFlatCents ?? 0);
       const totalCents = subtotalCents + shippingCents;
       const id = randomUUID();
 
@@ -59,10 +98,7 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
         customerName: data.customerName,
         customerEmail: data.customerEmail,
         customerPhone: data.customerPhone,
-        shippingStreet: data.shippingStreet,
-        shippingCity: data.shippingCity,
-        shippingProvince: data.shippingProvince,
-        shippingPostalCode: data.shippingPostalCode,
+        deliveryMethod: data.deliveryMethod,
         shippingNotes: data.shippingNotes || null,
         paymentMethod: data.paymentMethod,
         installments: null,
@@ -82,11 +118,19 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
           .set({ stock: sql`${products.stock} - ${item.quantity}` })
           .where(eq(products.id, item.productId));
       }
+      for (const update of variantStockUpdates) {
+        await tx
+          .update(productVariants)
+          .set({ stock: sql`${productVariants.stock} - ${update.quantity}` })
+          .where(eq(productVariants.id, update.variantId));
+      }
 
       return {
         id,
         customerName: data.customerName,
         customerEmail: data.customerEmail,
+        deliveryMethod: data.deliveryMethod,
+        paymentMethod: data.paymentMethod,
         subtotalCents,
         shippingCents,
         totalCents,
