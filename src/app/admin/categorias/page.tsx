@@ -19,6 +19,7 @@ export default async function AdminCategoriesPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border text-left text-muted">
+                <th className="px-4 py-3 font-medium">Imagen</th>
                 <th className="px-4 py-3 font-medium">Nombre</th>
                 <th className="px-4 py-3 font-medium">Slug</th>
                 <th className="px-4 py-3" />
@@ -27,6 +28,18 @@ export default async function AdminCategoriesPage() {
             <tbody>
               {allCategories.map((cat) => (
                 <tr key={cat.id} className="border-b border-border last:border-0">
+                  <td className="px-4 py-3">
+                    {cat.imageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={cat.imageUrl}
+                        alt={cat.name}
+                        className="h-12 w-12 rounded-lg border border-border object-cover"
+                      />
+                    ) : (
+                      <div className="h-12 w-12 rounded-lg border border-dashed border-border" />
+                    )}
+                  </td>
                   <td className="px-4 py-3 font-medium text-brand-900">{cat.name}</td>
                   <td className="px-4 py-3 text-brand-700">{cat.slug}</td>
                   <td className="px-4 py-3 text-right">
@@ -47,7 +60,7 @@ export default async function AdminCategoriesPage() {
               ))}
               {allCategories.length === 0 && (
                 <tr>
-                  <td colSpan={3} className="px-4 py-8 text-center text-muted">
+                  <td colSpan={4} className="px-4 py-8 text-center text-muted">
                     Todavía no hay categorías.
                   </td>
                 </tr>

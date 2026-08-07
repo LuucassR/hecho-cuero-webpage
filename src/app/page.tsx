@@ -5,22 +5,23 @@ import { LinkButton } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductCard } from "@/components/product/ProductCard";
 import { InstagramReels } from "@/components/home/InstagramReels";
+import { Faq } from "@/components/home/Faq";
 import { getAllCategories, getFeaturedProducts } from "@/lib/products";
 
-const PILLARS = [
-  {
-    title: "Cuero 100% argentino",
-    text: "Seleccionamos cuero de primera calidad, curtido en el país, para que cada pieza envejezca con carácter.",
-  },
-  {
-    title: "Hecho a mano en Santa Fe",
-    text: "Cada mate, cada bolso, cada detalle pasa por manos artesanas antes de llegar a las tuyas.",
-  },
-  {
-    title: "Piezas para toda la vida",
-    text: "Diseñamos productos duraderos, pensados para acompañarte durante años, no temporadas.",
-  },
-];
+// const PILLARS = [
+//   {
+//     title: "Cuero 100% argentino",
+//     text: "Seleccionamos cuero de primera calidad, curtido en el país, para que cada pieza envejezca con carácter.",
+//   },
+//   {
+//     title: "Hecho a mano",
+//     text: "Cada mate, cada bolso, cada detalle pasa por manos artesanas antes de llegar a las tuyas.",
+//   },
+//   {
+//     title: "Piezas para toda la vida",
+//     text: "Diseñamos productos duraderos, pensados para acompañarte durante años, no temporadas.",
+//   },
+// ];
 
 export default async function Home() {
   const [categories, featured] = await Promise.all([
@@ -93,16 +94,16 @@ export default async function Home() {
               Nuestra historia
             </p>
             <h2 className="font-display text-3xl text-brand-900 sm:text-4xl">
-              Marroquinería con raíces santafesinas
+              ¿Que es Echo Cuero?
             </h2>
             <p className="mt-4 text-brand-700">
-              Somos un taller de cuero de Santa Fe capital. Trabajamos cada pieza de
+              Somos una tienda que vende productos de cuero genuino de Santa Fe capital. Cada pieza esta trabajada de
               forma artesanal, cuidando el detalle desde el corte hasta la última
               costura, para que lo que te llevás dure de verdad.
             </p>
           </Reveal>
 
-          <div className="mt-14 grid gap-8 sm:grid-cols-3">
+          {/* <div className="mt-14 grid gap-8 sm:grid-cols-3">
             {PILLARS.map((pillar, i) => (
               <Reveal key={pillar.title} delay={i * 120}>
                 <div className="h-full rounded-2xl border border-border bg-surface p-6">
@@ -116,7 +117,7 @@ export default async function Home() {
                 </div>
               </Reveal>
             ))}
-          </div>
+          </div> */}
         </Container>
       </section>
 
@@ -133,10 +134,24 @@ export default async function Home() {
                 <Reveal key={cat.slug} delay={i * 100}>
                   <Link
                     href={`/categorias/${cat.slug}`}
-                    className="group flex aspect-[4/3] flex-col items-start justify-end rounded-2xl bg-gradient-to-br from-brand-700 to-brand-900 p-6 text-cream-100 transition-transform duration-300 hover:scale-[1.02]"
+                    className="group relative flex aspect-[4/3] flex-col items-start justify-end overflow-hidden rounded-2xl bg-gradient-to-br from-brand-700 to-brand-900 p-6 text-cream-100 transition-transform duration-300 hover:scale-[1.02]"
                   >
-                    <span className="font-display text-xl">{cat.name}</span>
-                    <span className="mt-1 flex items-center gap-1 text-sm text-brand-200 group-hover:underline">
+                    {cat.imageUrl && (
+                      <>
+                        <Image
+                          src={cat.imageUrl}
+                          alt={cat.name}
+                          fill
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                        <div
+                          aria-hidden
+                          className="absolute inset-0 bg-gradient-to-t from-brand-950/90 via-brand-950/20 to-transparent"
+                        />
+                      </>
+                    )}
+                    <span className="relative font-display text-xl">{cat.name}</span>
+                    <span className="relative mt-1 flex items-center gap-1 text-sm text-brand-200 group-hover:underline">
                       Ver productos
                       <span className="transition-transform duration-300 group-hover:translate-x-1">
                         →
@@ -173,6 +188,8 @@ export default async function Home() {
       </section>
 
       <InstagramReels />
+
+      <Faq />
 
       <section className="py-20">
         <Container>

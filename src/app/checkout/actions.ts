@@ -88,9 +88,7 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
         });
       }
 
-      const settings = await tx.query.storeSettings.findFirst();
-      const shippingCents = data.deliveryMethod === "retiro" ? 0 : (settings?.shippingFlatCents ?? 0);
-      const totalCents = subtotalCents + shippingCents;
+      const totalCents = subtotalCents;
       const id = randomUUID();
 
       await tx.insert(orders).values({
@@ -103,7 +101,6 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
         paymentMethod: data.paymentMethod,
         installments: null,
         subtotalCents,
-        shippingCents,
         installmentsSurchargeCents: 0,
         totalCents,
         status: "pendiente_pago",
@@ -132,7 +129,6 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
         deliveryMethod: data.deliveryMethod,
         paymentMethod: data.paymentMethod,
         subtotalCents,
-        shippingCents,
         totalCents,
         items: insertedItems,
       };

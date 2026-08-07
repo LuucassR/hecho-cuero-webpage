@@ -6,7 +6,6 @@ const NAV_ITEMS = [
   { href: "/admin/productos", label: "Productos" },
   { href: "/admin/categorias", label: "Categorías" },
   { href: "/admin/pedidos", label: "Pedidos" },
-  { href: "/admin/configuracion", label: "Configuración" },
 ];
 
 export default function AdminLayout({ children }: LayoutProps<"/admin">) {

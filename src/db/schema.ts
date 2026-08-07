@@ -34,6 +34,7 @@ export const categories = pgTable("categories", {
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
   description: text("description"),
+  imageUrl: text("image_url"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -116,13 +117,6 @@ export const productVariantValues = pgTable(
   (table) => [primaryKey({ columns: [table.variantId, table.optionValueId] })],
 );
 
-// Single-row settings table (id is always 1).
-export const storeSettings = pgTable("store_settings", {
-  id: integer("id").primaryKey().default(1),
-  shippingFlatCents: integer("shipping_flat_cents").notNull().default(0),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
-
 export const orders = pgTable("orders", {
   id: text("id").primaryKey(),
   customerName: text("customer_name").notNull(),
@@ -137,7 +131,6 @@ export const orders = pgTable("orders", {
   paymentMethod: paymentMethodEnum("payment_method").notNull(),
   installments: integer("installments"),
   subtotalCents: integer("subtotal_cents").notNull(),
-  shippingCents: integer("shipping_cents").notNull().default(0),
   installmentsSurchargeCents: integer("installments_surcharge_cents")
     .notNull()
     .default(0),

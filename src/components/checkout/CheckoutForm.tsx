@@ -16,7 +16,7 @@ import { Textarea } from "@/components/ui/Textarea";
 type DeliveryMethod = "envio" | "retiro";
 type PaymentMethod = "transferencia" | "efectivo";
 
-export function CheckoutForm({ shippingCents }: { shippingCents: number }) {
+export function CheckoutForm() {
   const { items, subtotalCents, clear } = useCart();
   const router = useRouter();
 
@@ -25,8 +25,7 @@ export function CheckoutForm({ shippingCents }: { shippingCents: number }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const effectiveShippingCents = deliveryMethod === "retiro" ? 0 : shippingCents;
-  const totalCents = subtotalCents + effectiveShippingCents;
+  const totalCents = subtotalCents;
 
   function handleDeliveryChange(method: DeliveryMethod) {
     setDeliveryMethod(method);
@@ -247,12 +246,6 @@ export function CheckoutForm({ shippingCents }: { shippingCents: number }) {
           <div className="flex justify-between text-brand-800">
             <span>Subtotal</span>
             <span>{formatCurrency(subtotalCents)}</span>
-          </div>
-          <div className="flex justify-between text-brand-800">
-            <span>Envío</span>
-            <span>
-              {deliveryMethod === "retiro" ? "Sin cargo" : formatCurrency(effectiveShippingCents)}
-            </span>
           </div>
           <div className="flex justify-between pt-1 text-base font-semibold text-brand-900">
             <span>Total</span>

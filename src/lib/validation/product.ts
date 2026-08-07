@@ -56,6 +56,7 @@ export const categorySchema = z.object({
     .min(2, "El slug es obligatorio")
     .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "El slug solo puede tener minúsculas, números y guiones"),
   description: z.string().trim().optional(),
+  imageUrl: z.string().trim().optional(),
 });
 
 export type CategoryInput = z.infer<typeof categorySchema>;

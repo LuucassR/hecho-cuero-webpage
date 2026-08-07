@@ -8,7 +8,6 @@ export type OrderConfirmationEmailData = {
   deliveryMethod: "envio" | "retiro";
   paymentMethod: "tarjeta_credito" | "tarjeta_debito" | "mercado_pago" | "transferencia" | "efectivo";
   subtotalCents: number;
-  shippingCents: number;
   totalCents: number;
   items: {
     productName: string;
@@ -146,10 +145,6 @@ Envianos el comprobante por WhatsApp para confirmar tu pedido.${
                     <td style="padding:4px 0;font-size:14px;color:#6b5c4f;text-align:right;">${formatCurrency(order.subtotalCents)}</td>
                   </tr>
                   <tr>
-                    <td style="padding:4px 0;font-size:14px;color:#6b5c4f;">Envío</td>
-                    <td style="padding:4px 0;font-size:14px;color:#6b5c4f;text-align:right;">${formatCurrency(order.shippingCents)}</td>
-                  </tr>
-                  <tr>
                     <td style="padding:10px 0 0;font-size:16px;font-weight:bold;color:${BRAND_BROWN};border-top:1px solid ${BORDER};">Total</td>
                     <td style="padding:10px 0 0;font-size:16px;font-weight:bold;color:${BRAND_BROWN};text-align:right;border-top:1px solid ${BORDER};">${formatCurrency(order.totalCents)}</td>
                   </tr>
@@ -189,7 +184,6 @@ Productos:
 ${itemsRowsText}
 
 Subtotal: ${formatCurrency(order.subtotalCents)}
-Envío: ${formatCurrency(order.shippingCents)}
 Total: ${formatCurrency(order.totalCents)}
 
 ${paymentInfoText}

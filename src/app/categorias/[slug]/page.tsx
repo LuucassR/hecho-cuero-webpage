@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/Container";
 import { ProductCard } from "@/components/product/ProductCard";
@@ -27,6 +28,11 @@ export default async function CategoryPage({
 
   return (
     <Container className="py-12">
+      {category.imageUrl && (
+        <div className="relative mb-8 aspect-[16/6] w-full overflow-hidden rounded-2xl">
+          <Image src={category.imageUrl} alt={category.name} fill className="object-cover" />
+        </div>
+      )}
       <h1 className="font-display text-3xl text-brand-900">{category.name}</h1>
       {category.description && (
         <p className="mt-2 max-w-xl text-muted">{category.description}</p>

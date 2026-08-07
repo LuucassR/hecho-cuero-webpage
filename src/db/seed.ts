@@ -1,6 +1,6 @@
 import { inArray } from "drizzle-orm";
 import { db } from "./index";
-import { categories, productImages, products, storeSettings } from "./schema";
+import { categories, productImages, products } from "./schema";
 
 async function main() {
   console.log("Sembrando categorías...");
@@ -11,16 +11,19 @@ async function main() {
         name: "Mates",
         slug: "mates",
         description: "Mates y accesorios para cebar.",
+        imageUrl: "/bombilla-3.jpeg",
       },
       {
         name: "Cuero y Marroquinería",
         slug: "cuero-y-marroquineria",
         description: "Productos de cuero 100% argentino.",
+        imageUrl: "/bolso-mate-1.jpeg",
       },
       {
         name: "Regionales",
         slug: "regionales",
         description: "Productos regionales y artesanales.",
+        imageUrl: "/bolso-de-mate-afa-publicidad.jpeg",
       },
     ])
     .onConflictDoNothing();
@@ -201,15 +204,6 @@ async function main() {
       })),
     );
   }
-
-  console.log("Configurando envío...");
-  await db
-    .insert(storeSettings)
-    .values({ id: 1, shippingFlatCents: 500000 })
-    .onConflictDoUpdate({
-      target: storeSettings.id,
-      set: { shippingFlatCents: 500000 },
-    });
 
   console.log("Listo.");
   process.exit(0);

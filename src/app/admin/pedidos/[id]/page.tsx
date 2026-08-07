@@ -95,10 +95,6 @@ export default async function AdminOrderDetailPage({
             <span>Subtotal</span>
             <span>{formatCurrency(order.subtotalCents)}</span>
           </div>
-          <div className="flex justify-between text-brand-800">
-            <span>Envío</span>
-            <span>{formatCurrency(order.shippingCents)}</span>
-          </div>
           {order.installmentsSurchargeCents > 0 && (
             <div className="flex justify-between text-brand-800">
               <span>Recargo por cuotas</span>
