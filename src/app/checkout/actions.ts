@@ -1,9 +1,9 @@
 "use server";
 
-import { randomUUID } from "node:crypto";
 import { eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { orderItems, orders, productVariants, products } from "@/db/schema";
+import { generateOrderId } from "@/lib/order-id";
 import { checkoutSchema, type CheckoutInput } from "@/lib/validation/checkout";
 import { sendOrderConfirmationEmail } from "@/lib/email/send-order-confirmation";
 import { mapVariant, variantLabel } from "@/lib/variants";
@@ -89,7 +89,7 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
       }
 
       const totalCents = subtotalCents;
-      const id = randomUUID();
+      const id = generateOrderId();
 
       await tx.insert(orders).values({
         id,

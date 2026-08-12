@@ -35,7 +35,7 @@ export function buildOrderConfirmationEmail(order: OrderConfirmationEmailData): 
   html: string;
   text: string;
 } {
-  const shortId = order.id.slice(0, 8).toUpperCase();
+  const shortId = order.id.toUpperCase();
   const subject = `Pedido confirmado #${shortId} — Hecho Cuero`;
 
   const itemsRowsHtml = order.items

@@ -22,7 +22,7 @@ export default async function AdminOrderDetailPage({
     <div className="max-w-3xl">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl text-brand-900">Pedido {order.id.slice(0, 8)}</h1>
+          <h1 className="font-display text-2xl text-brand-900">Pedido {order.id}</h1>
           <p className="text-sm text-muted">{formatDate(order.createdAt)}</p>
         </div>
         <OrderStatusSelect orderId={order.id} status={order.status} />
