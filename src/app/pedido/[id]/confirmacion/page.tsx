@@ -15,6 +15,7 @@ import {
 } from "@/lib/orders";
 import { BANK_TRANSFER_DETAILS } from "@/lib/payments/bank-transfer";
 import { STORE_INFO } from "@/lib/store-info";
+import { OrderWhatsAppButton } from "@/components/checkout/OrderWhatsAppButton";
 
 export const metadata: Metadata = {
   title: "Pedido confirmado — Hecho Cuero",
@@ -127,9 +128,6 @@ export default async function OrderConfirmationPage({
               <div className="flex justify-between"><dt>CBU</dt><dd>{BANK_TRANSFER_DETAILS.cbu}</dd></div>
               <div className="flex justify-between"><dt>Alias</dt><dd>{BANK_TRANSFER_DETAILS.alias}</dd></div>
             </dl>
-            <p className="mt-2 text-muted">
-              Envianos el comprobante por WhatsApp para confirmar tu pedido.
-            </p>
           </div>
         )}
 
@@ -138,6 +136,17 @@ export default async function OrderConfirmationPage({
             La integración con Mercado Pago está en camino — te contactaremos para
             coordinar el pago.
           </div>
+        )}
+
+        {(order.paymentMethod === "transferencia" || order.paymentMethod === "efectivo") && (
+          <OrderWhatsAppButton
+            orderId={order.id}
+            customerName={order.customerName}
+            deliveryMethod={order.deliveryMethod}
+            paymentMethod={order.paymentMethod}
+            totalCents={order.totalCents}
+            items={order.items}
+          />
         )}
       </div>
 
