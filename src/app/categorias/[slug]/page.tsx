@@ -30,7 +30,13 @@ export default async function CategoryPage({
     <Container className="py-12">
       {category.imageUrl && (
         <div className="relative mb-8 aspect-[16/6] w-full overflow-hidden rounded-2xl">
-          <Image src={category.imageUrl} alt={category.name} fill className="object-cover" />
+          <Image
+            src={category.imageUrl}
+            alt={category.name}
+            fill
+            sizes="(min-width: 1280px) 1216px, 100vw"
+            className="object-cover"
+          />
         </div>
       )}
       <h1 className="font-display text-3xl text-brand-900">{category.name}</h1>

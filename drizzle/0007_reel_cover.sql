@@ -1,0 +1,1 @@
+ALTER TABLE "instagram_reels" ADD COLUMN "cover_url" text;

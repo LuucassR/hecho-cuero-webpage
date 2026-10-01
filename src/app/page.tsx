@@ -7,6 +7,7 @@ import { ProductCard } from "@/components/product/ProductCard";
 import { InstagramReels } from "@/components/home/InstagramReels";
 import { Faq } from "@/components/home/Faq";
 import { getAllCategories, getFeaturedProducts } from "@/lib/products";
+import { getInstagramReels } from "@/lib/reels";
 
 // const PILLARS = [
 //   {
@@ -24,9 +25,10 @@ import { getAllCategories, getFeaturedProducts } from "@/lib/products";
 // ];
 
 export default async function Home() {
-  const [categories, featured] = await Promise.all([
+  const [categories, featured, reels] = await Promise.all([
     getAllCategories(),
     getFeaturedProducts(8),
+    getInstagramReels(),
   ]);
 
   return (
@@ -146,6 +148,7 @@ export default async function Home() {
                           src={cat.imageUrl}
                           alt={cat.name}
                           fill
+                          sizes="(min-width: 640px) 33vw, 100vw"
                           className="object-cover transition-transform duration-300 group-hover:scale-105"
                         />
                         <div
@@ -191,7 +194,7 @@ export default async function Home() {
         </Container>
       </section>
 
-      <InstagramReels />
+      <InstagramReels reels={reels} />
 
       <Faq />
 

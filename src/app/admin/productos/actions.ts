@@ -1,6 +1,5 @@
 "use server";
 
-import { del } from "@vercel/blob";
 import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -13,6 +12,7 @@ import {
   productVariantValues,
   products,
 } from "@/db/schema";
+import { deleteStoredFile, optimizeUploadedImage } from "@/lib/blob";
 import {
   productOptionsInputSchema,
   productSchema,
@@ -98,14 +98,17 @@ export async function deleteProduct(id: number) {
     where: eq(productImages.productId, id),
   });
   await Promise.all(
-    images.map((img) => del(img.url).catch(() => undefined)),
+    images.map((img) => deleteStoredFile(img.url)),
   );
   await db.delete(products).where(eq(products.id, id));
   revalidatePath("/admin/productos");
   redirect("/admin/productos");
 }
 
-export async function attachProductImage(productId: number, url: string) {
+// Optimizes an image the admin uploaded to Vercel Blob from the browser and
+// attaches it to the product.
+export async function attachProductImage(productId: number, blobUrl: string) {
+  const url = await optimizeUploadedImage(blobUrl, "products");
   const existing = await db.query.productImages.findMany({
     where: eq(productImages.productId, productId),
     orderBy: asc(productImages.position),
@@ -126,7 +129,7 @@ export async function removeProductImage(imageId: number, productId: number) {
     where: eq(productImages.id, imageId),
   });
   if (image) {
-    await del(image.url).catch(() => undefined);
+    await deleteStoredFile(image.url);
     await db.delete(productImages).where(eq(productImages.id, imageId));
   }
   revalidatePath(`/admin/productos/${productId}/editar`);
