@@ -14,12 +14,12 @@ import { getAllCategories, getFeaturedProducts } from "@/lib/products";
 //     text: "Seleccionamos cuero de primera calidad, curtido en el país, para que cada pieza envejezca con carácter.",
 //   },
 //   {
-//     title: "Hecho a mano",
-//     text: "Cada mate, cada bolso, cada detalle pasa por manos artesanas antes de llegar a las tuyas.",
+//     title: "Elegido con criterio",
+//     text: "Cada mate, cada bolso, cada detalle pasa por nuestras manos y se revisa por calidad y terminación antes de llegar a las tuyas.",
 //   },
 //   {
 //     title: "Piezas para toda la vida",
-//     text: "Diseñamos productos duraderos, pensados para acompañarte durante años, no temporadas.",
+//     text: "Elegimos productos duraderos, pensados para acompañarte durante años, no temporadas.",
 //   },
 // ];
 
@@ -55,7 +55,8 @@ export default async function Home() {
             </Reveal>
             <Reveal direction="up" delay={200}>
               <p className="mt-5 max-w-md text-brand-200">
-                Piezas hechas a mano en Santa Fe, pensadas para durar toda la vida.
+                Cuero real y semi-cuero, elegido con criterio en Santa Fe — para que lo
+                que te lleves dure de verdad.
               </p>
             </Reveal>
             <Reveal direction="up" delay={300}>
@@ -94,12 +95,15 @@ export default async function Home() {
               Nuestra historia
             </p>
             <h2 className="font-display text-3xl text-brand-900 sm:text-4xl">
-              ¿Que es Echo Cuero?
+              ¿Qué es Hecho Cuero?
             </h2>
             <p className="mt-4 text-brand-700">
-              Somos una tienda que vende productos de cuero genuino de Santa Fe capital. Cada pieza esta trabajada de
-              forma artesanal, cuidando el detalle desde el corte hasta la última
-              costura, para que lo que te llevás dure de verdad.
+              Hecho Cuero nace de un proyecto familiar: un padre y un hijo armando,
+              desde cero, un local de cuero real y productos regionales en el
+              corazón de Santa Fe. No revendemos lo que sea más barato — elegimos
+              cada producto con criterio, y buena parte de lo que vendemos lo
+              seleccionamos directamente por su calidad y terminación. Si buscás
+              algo con historia detrás, llegaste al lugar correcto.
             </p>
           </Reveal>
 
@@ -202,8 +206,7 @@ export default async function Home() {
               ¿Buscás algo especial?
             </h2>
             <p className="relative mx-auto mt-3 max-w-md text-brand-200">
-              Descubrí toda nuestra colección de cuero, mates y productos regionales
-              hechos a mano.
+              Descubrí toda nuestra selección de cuero, mates y productos regionales.
             </p>
             <div className="relative mt-7">
               <LinkButton href="/productos" size="lg">

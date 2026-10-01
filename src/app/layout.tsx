@@ -24,7 +24,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Hecho Cuero — Cuero, mates y productos regionales",
   description:
-    "Cuero 100% argentino. Mates, marroquinería y productos regionales hechos a mano en Santa Fe.",
+    "Cuero real y semi-cuero elegido con criterio en Santa Fe. Mates, bombillas, marroquinería y productos regionales.",
 };
 
 async function getNavCategories() {

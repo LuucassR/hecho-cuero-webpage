@@ -9,7 +9,7 @@ import { getFeaturedProducts } from "@/lib/products";
 export const metadata: Metadata = {
   title: "Regalos Corporativos | Hecho Cuero",
   description:
-    "Regalos empresariales de cuero, hechos a mano en Santa Fe. Pedidos personalizados para empresas y eventos, mínimo 10 unidades.",
+    "Regalos empresariales de cuero, elegidos con criterio en Santa Fe. Pedidos personalizados para empresas y eventos, mínimo 10 unidades.",
 };
 
 const BENEFITS = [
@@ -78,7 +78,7 @@ export default async function RegalosCorporativosPage() {
           </Reveal>
           <Reveal direction="up" delay={200}>
             <p className="mx-auto mt-5 max-w-xl text-brand-200">
-              Piezas hechas a mano en Santa Fe para sorprender a tu equipo, tus clientes o
+              Piezas de cuero elegidas con criterio en Santa Fe para sorprender a tu equipo, tus clientes o
               los invitados de tu próximo evento. Personalizamos cada pedido para que lleve
               la marca de tu empresa.
             </p>
@@ -111,8 +111,9 @@ export default async function RegalosCorporativosPage() {
               Regalos que hablan de tu marca
             </h2>
             <p className="mt-4 text-brand-700">
-              Cada pieza sale de manos artesanas santafesinas. Así de personal queremos que
-              sea el regalo que le llegue a tu equipo o a tus clientes.
+              Elegimos cada pieza por su calidad y terminación, y la personalizamos para tu
+              empresa. Así de personal queremos que sea el regalo que le llegue a tu equipo
+              o a tus clientes.
             </p>
           </Reveal>
 

@@ -7,7 +7,7 @@ export function DeleteCategoryButton({
   onDelete,
 }: {
   categoryName: string;
-  onDelete: () => Promise<void>;
+  onDelete: () => Promise<{ error?: string } | undefined>;
 }) {
   const [isPending, startTransition] = useTransition();
 
@@ -16,12 +16,11 @@ export function DeleteCategoryButton({
       type="button"
       disabled={isPending}
       onClick={() => {
-        if (
-          window.confirm(
-            `¿Eliminar la categoría "${categoryName}"? Los productos quedarán sin categoría.`,
-          )
-        ) {
-          startTransition(onDelete);
+        if (window.confirm(`¿Eliminar la categoría "${categoryName}"?`)) {
+          startTransition(async () => {
+            const result = await onDelete();
+            if (result?.error) window.alert(result.error);
+          });
         }
       }}
       className="text-sm font-medium text-red-700 hover:underline disabled:opacity-50"

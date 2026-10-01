@@ -1,15 +1,12 @@
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
 
+// Loaded by hand: paste the URLs of the latest reels from
+// instagram.com/hechocuero.sf (newest first). Each one is shown once.
 const REELS = [
   "https://www.instagram.com/reel/DbmJ-0Etbdz/",
   "https://www.instagram.com/reel/DbrUEPhtyXz/",
 ];
-
-// One lap through the reels, repeated for width; doubled below so the
-// track can loop seamlessly from -50% back to 0.
-const LOOP = [...REELS, ...REELS, ...REELS];
-const TRACK = [...LOOP, ...LOOP];
 
 function InstagramIcon({ className }: { className?: string }) {
   return (
@@ -75,10 +72,12 @@ export function InstagramReels() {
         </Reveal>
       </Container>
 
-      <div className="reels-marquee relative overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]">
-        <div className="animate-marquee flex w-max gap-5 px-4">
-          {TRACK.map((href, i) => (
-            <ReelCard key={i} href={href} index={i % REELS.length} />
+      <div className="snap-x snap-mandatory overflow-x-auto pb-2">
+        <div className="mx-auto flex w-max gap-5 px-4">
+          {[...new Set(REELS)].map((href, i) => (
+            <div key={href} className="snap-center">
+              <ReelCard href={href} index={i} />
+            </div>
           ))}
         </div>
       </div>

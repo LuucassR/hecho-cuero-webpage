@@ -56,8 +56,8 @@ export function Footer() {
               </Link>
             </li>
             <li>
-              <Link href="/categorias/regionales" className="hover:text-cream-100">
-                Regionales
+              <Link href="/categorias/bombillas" className="hover:text-cream-100">
+                Bombillas
               </Link>
             </li>
           </ul>
