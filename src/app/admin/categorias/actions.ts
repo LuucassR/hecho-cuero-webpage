@@ -53,8 +53,15 @@ export async function updateCategory(
   redirect("/admin/categorias");
 }
 
-export async function deleteCategory(id: number) {
-  await db.update(products).set({ categoryId: null }).where(eq(products.categoryId, id));
+// Refuses to delete a category that still has products, so they get moved to
+// another category first instead of silently dropping out of the catalog.
+export async function deleteCategory(id: number): Promise<CategoryFormState> {
+  const assigned = await db.$count(products, eq(products.categoryId, id));
+  if (assigned > 0) {
+    return {
+      error: `Esta categoría todavía tiene ${assigned} producto(s). Movelos a otra categoría antes de eliminarla.`,
+    };
+  }
   await db.delete(categories).where(eq(categories.id, id));
   revalidatePath("/admin/categorias");
 }

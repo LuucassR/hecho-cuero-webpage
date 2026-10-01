@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { upload } from "@vercel/blob/client";
 import Image from "next/image";
 import { attachProductImage, removeProductImage } from "@/app/admin/productos/actions";
+import { BLOB_ACCESS, INCOMING_FOLDER } from "@/lib/blob-access";
 
 type ImageItem = { id: number; url: string };
 
@@ -26,8 +27,8 @@ export function ImageUploader({
 
     try {
       for (const file of Array.from(files)) {
-        const blob = await upload(file.name, file, {
-          access: "public",
+        const blob = await upload(`${INCOMING_FOLDER}/${file.name}`, file, {
+          access: BLOB_ACCESS,
           handleUploadUrl: "/api/blob/upload",
         });
         await attachProductImage(productId, blob.url);

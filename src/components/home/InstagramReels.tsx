@@ -1,15 +1,9 @@
+import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
+import { ReelsMarquee } from "./ReelsMarquee";
 
-const REELS = [
-  "https://www.instagram.com/reel/DbmJ-0Etbdz/",
-  "https://www.instagram.com/reel/DbrUEPhtyXz/",
-];
-
-// One lap through the reels, repeated for width; doubled below so the
-// track can loop seamlessly from -50% back to 0.
-const LOOP = [...REELS, ...REELS, ...REELS];
-const TRACK = [...LOOP, ...LOOP];
+export type HomeReel = { url: string; coverUrl: string | null };
 
 function InstagramIcon({ className }: { className?: string }) {
   return (
@@ -29,20 +23,37 @@ function PlayIcon({ className }: { className?: string }) {
   );
 }
 
-function ReelCard({ href, index }: { href: string; index: number }) {
+function ReelCard({ reel, index }: { reel: HomeReel; index: number }) {
   return (
     <a
-      href={href}
+      href={reel.url}
       target="_blank"
       rel="noopener noreferrer"
       aria-label={`Ver reel de Instagram ${index + 1}`}
       className="group/card relative flex aspect-9/16 w-48 shrink-0 flex-col items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-brand-700 to-brand-950 text-cream-100 shadow-sm transition-transform duration-300 hover:scale-[1.03] sm:w-56"
     >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-25 [background:radial-gradient(circle_at_30%_20%,white,transparent_60%)]"
-      />
-      <span className="flex h-14 w-14 items-center justify-center rounded-full bg-cream-100/15 backdrop-blur-sm transition-transform duration-300 group-hover/card:scale-110">
+      {reel.coverUrl ? (
+        <>
+          {/* Scaled up so the blur doesn't leave soft edges at the card border. */}
+          <Image
+            src={reel.coverUrl}
+            alt=""
+            fill
+            sizes="224px"
+            className="scale-110 object-cover blur-[3px] transition-[filter] duration-300 group-hover/card:blur-[0px]"
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand-950/80 via-brand-950/20 to-brand-950/10"
+          />
+        </>
+      ) : (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-25 [background:radial-gradient(circle_at_30%_20%,white,transparent_60%)]"
+        />
+      )}
+      <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-cream-100/15 backdrop-blur-sm transition-transform duration-300 group-hover/card:scale-110">
         <PlayIcon className="h-6 w-6 translate-x-0.5 text-cream-100" />
       </span>
       <span className="absolute bottom-4 left-4 right-4 flex items-center gap-2 text-xs font-medium text-cream-100/90">
@@ -53,7 +64,10 @@ function ReelCard({ href, index }: { href: string; index: number }) {
   );
 }
 
-export function InstagramReels() {
+// Reels are managed from /admin/reels.
+export function InstagramReels({ reels }: { reels: HomeReel[] }) {
+  if (reels.length === 0) return null;
+
   return (
     <section className="overflow-hidden py-16">
       <Container>
@@ -75,13 +89,13 @@ export function InstagramReels() {
         </Reveal>
       </Container>
 
-      <div className="reels-marquee relative overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]">
-        <div className="animate-marquee flex w-max gap-5 px-4">
-          {TRACK.map((href, i) => (
-            <ReelCard key={i} href={href} index={i % REELS.length} />
-          ))}
-        </div>
-      </div>
+      <ReelsMarquee>
+        {reels.map((reel, i) => (
+          <div key={reel.url} className="snap-center">
+            <ReelCard reel={reel} index={i} />
+          </div>
+        ))}
+      </ReelsMarquee>
     </section>
   );
 }

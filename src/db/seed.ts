@@ -20,15 +20,15 @@ async function main() {
         imageUrl: "/bolso-mate-1.jpeg",
       },
       {
-        name: "Regionales",
-        slug: "regionales",
-        description: "Productos regionales y artesanales.",
-        imageUrl: "/bolso-de-mate-afa-publicidad.jpeg",
+        name: "Bombillas",
+        slug: "bombillas",
+        description: "Bombillas de alpaca, acero y bronce.",
+        imageUrl: "/bombilla-1.jpeg",
       },
     ])
     .onConflictDoNothing();
 
-  const categorySlugs = ["mates", "cuero-y-marroquineria", "regionales"] as const;
+  const categorySlugs = ["mates", "cuero-y-marroquineria", "bombillas"] as const;
   const allCategories = await db.query.categories.findMany({
     where: inArray(categories.slug, categorySlugs),
   });
@@ -134,7 +134,7 @@ async function main() {
       description: "Bombilla clásica de alpaca con cuchara filtro de perforación fina.",
       priceCents: 1200000,
       stock: 25,
-      categoryId: categoryId("mates"),
+      categoryId: categoryId("bombillas"),
       specifications: [
         "Alpaca (metal blanco) de alta calidad",
         "Cuchara filtro con perforaciones finas",
@@ -150,7 +150,7 @@ async function main() {
         "Bombilla de acero inoxidable con boquilla de bronce, cuchara filtro removible.",
       priceCents: 1350000,
       stock: 20,
-      categoryId: categoryId("mates"),
+      categoryId: categoryId("bombillas"),
       specifications: [
         "Cuerpo de acero inoxidable con boquilla de bronce",
         "Cuchara filtro removible",
@@ -165,7 +165,7 @@ async function main() {
       description: "Bombilla de diseño clásico argentino, cuerpo espiralado de alpaca.",
       priceCents: 1400000,
       stock: 20,
-      categoryId: categoryId("mates"),
+      categoryId: categoryId("bombillas"),
       specifications: [
         "Cuerpo espiralado de alpaca",
         "Diseño clásico argentino",
@@ -181,7 +181,7 @@ async function main() {
         "Bombilla de diseño tradicional pico de loro, cuerpo de acero con detalle en bronce.",
       priceCents: 1300000,
       stock: 18,
-      categoryId: categoryId("mates"),
+      categoryId: categoryId("bombillas"),
       specifications: [
         "Diseño tradicional pico de loro",
         "Cuerpo de acero inoxidable con detalle en bronce",

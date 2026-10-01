@@ -6,7 +6,7 @@ const FAQS = [
   {
     question: "¿De qué material están hechos los productos?",
     answer:
-      "Trabajamos con cuero 100% argentino, curtido en el país. Cada pieza se corta y se cose de forma artesanal en nuestro taller de Santa Fe.",
+      "Trabajamos tanto con cuero 100% argentino como con semi-cuero, según el producto y lo que busques. Seleccionamos cada pieza con criterio de calidad y terminación antes de sumarla al local.",
   },
   {
     question: "¿Cómo hago un pedido?",

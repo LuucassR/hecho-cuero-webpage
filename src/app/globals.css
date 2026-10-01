@@ -81,15 +81,10 @@ h1, h2, h3, h4 {
 }
 
 .animate-marquee {
-  animation: marquee-left 32s linear infinite;
+  animation: marquee-left linear infinite;
 }
 
-.reels-marquee:hover .animate-marquee {
+.animate-marquee:hover,
+.animate-marquee:focus-within {
   animation-play-state: paused;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-marquee {
-    animation: none;
-  }
 }

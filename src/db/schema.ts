@@ -158,6 +158,16 @@ export const orderItems = pgTable("order_items", {
   lineTotalCents: integer("line_total_cents").notNull(),
 });
 
+// Instagram reels linked from the home page, ordered by `position` ascending.
+export const instagramReels = pgTable("instagram_reels", {
+  id: serial("id").primaryKey(),
+  url: text("url").notNull().unique(),
+  // Copy of the reel's cover in Vercel Blob; Instagram's own image URLs expire.
+  coverUrl: text("cover_url"),
+  position: integer("position").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const categoriesRelations = relations(categories, ({ many }) => ({
   products: many(products),
 }));
