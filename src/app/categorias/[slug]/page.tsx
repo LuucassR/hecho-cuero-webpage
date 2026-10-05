@@ -3,7 +3,8 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/Container";
 import { ProductCard } from "@/components/product/ProductCard";
-import { getCategoryBySlug, getProducts } from "@/lib/products";
+import { Pagination } from "@/components/product/Pagination";
+import { getCategoryBySlug, getProductsPage } from "@/lib/products";
 
 export async function generateMetadata({
   params,
@@ -17,14 +18,20 @@ export async function generateMetadata({
 
 export default async function CategoryPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ pagina?: string }>;
 }) {
   const { slug } = await params;
+  const { pagina } = await searchParams;
   const category = await getCategoryBySlug(slug);
   if (!category) notFound();
 
-  const products = await getProducts({ categorySlug: slug });
+  const { items: products, page, totalPages } = await getProductsPage({
+    categorySlug: slug,
+    page: Number(pagina),
+  });
 
   return (
     <Container className="py-12">
@@ -46,11 +53,14 @@ export default async function CategoryPage({
 
       <div className="mt-8">
         {products.length > 0 ? (
-          <div className="grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+            <Pagination page={page} totalPages={totalPages} basePath={`/categorias/${slug}`} />
+          </>
         ) : (
           <p className="text-muted">No hay productos en esta categoría todavía.</p>
         )}

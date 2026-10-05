@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
 import { ProductCard } from "@/components/product/ProductCard";
+import { Pagination } from "@/components/product/Pagination";
 import { SortSelect } from "@/components/product/SortSelect";
-import { getAllCategories, getProducts, type ProductSort } from "@/lib/products";
+import { getAllCategories, getProductsPage, type ProductSort } from "@/lib/products";
 import { clsx } from "clsx";
 import Link from "next/link";
 
@@ -13,13 +14,13 @@ export const metadata: Metadata = {
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ categoria?: string; orden?: string }>;
+  searchParams: Promise<{ categoria?: string; orden?: string; pagina?: string }>;
 }) {
   const params = await searchParams;
   const sort = (params.orden as ProductSort) ?? "recientes";
 
-  const [products, categories] = await Promise.all([
-    getProducts({ categorySlug: params.categoria, sort }),
+  const [{ items: products, page, totalPages }, categories] = await Promise.all([
+    getProductsPage({ categorySlug: params.categoria, sort, page: Number(params.pagina) }),
     getAllCategories(),
   ]);
 
@@ -65,11 +66,19 @@ export default async function ProductsPage({
       </div>
 
       {products.length > 0 ? (
-        <div className="grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            basePath="/productos"
+            query={{ categoria: params.categoria, orden: params.orden }}
+          />
+        </>
       ) : (
         <p className="text-muted">No hay productos en esta categoría todavía.</p>
       )}
