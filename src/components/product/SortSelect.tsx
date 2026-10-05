@@ -18,6 +18,7 @@ export function SortSelect({ value }: { value: ProductSort }) {
   function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const params = new URLSearchParams(searchParams.toString());
     params.set("orden", e.target.value);
+    params.delete("pagina");
     router.push(`${pathname}?${params.toString()}`);
   }
 

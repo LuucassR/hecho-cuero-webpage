@@ -1,4 +1,4 @@
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, count, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { categories, products } from "@/db/schema";
 import type { ProductSummary } from "@/components/product/ProductCard";
@@ -41,32 +41,53 @@ export async function getCategoryBySlug(slug: string) {
 
 export type ProductSort = "recientes" | "precio-asc" | "precio-desc";
 
-export async function getProducts(options: {
+// Each card loads its own image, so the page size is also the number of image
+// requests per visit. Keep it small and let people page through the rest.
+export const PRODUCTS_PER_PAGE = 12;
+
+export type ProductsPage = {
+  items: ProductSummary[];
+  total: number;
+  page: number;
+  totalPages: number;
+};
+
+export async function getProductsPage(options: {
   categorySlug?: string;
   sort?: ProductSort;
-} = {}): Promise<ProductSummary[]> {
+  page?: number;
+} = {}): Promise<ProductsPage> {
   let categoryId: number | undefined;
   if (options.categorySlug) {
     const category = await getCategoryBySlug(options.categorySlug);
-    if (!category) return [];
+    if (!category) return { items: [], total: 0, page: 1, totalPages: 1 };
     categoryId = category.id;
   }
 
+  const where = categoryId
+    ? and(eq(products.active, true), eq(products.categoryId, categoryId))
+    : eq(products.active, true);
+
+  // `id` breaks ties so products never repeat or vanish between pages.
   const orderBy =
     options.sort === "precio-asc"
-      ? asc(products.priceCents)
+      ? [asc(products.priceCents), asc(products.id)]
       : options.sort === "precio-desc"
-        ? desc(products.priceCents)
-        : desc(products.createdAt);
+        ? [desc(products.priceCents), asc(products.id)]
+        : [desc(products.createdAt), desc(products.id)];
+
+  const [{ total }] = await db.select({ total: count() }).from(products).where(where);
+  const totalPages = Math.max(1, Math.ceil(total / PRODUCTS_PER_PAGE));
+  const page = Math.min(Math.max(1, Math.trunc(options.page ?? 1) || 1), totalPages);
 
   const rows = await db.query.products.findMany({
-    where: categoryId
-      ? and(eq(products.active, true), eq(products.categoryId, categoryId))
-      : eq(products.active, true),
+    where,
     orderBy,
+    limit: PRODUCTS_PER_PAGE,
+    offset: (page - 1) * PRODUCTS_PER_PAGE,
     with: { images: { orderBy: (img, { asc }) => [asc(img.position)], limit: 1 } },
   });
-  return rows.map(toSummary);
+  return { items: rows.map(toSummary), total, page, totalPages };
 }
 
 export async function getProductBySlug(slug: string) {
