@@ -1,15 +1,33 @@
 import Link from "next/link";
 import Image from "next/image";
-import { desc } from "drizzle-orm";
+import { count, desc } from "drizzle-orm";
 import { db } from "@/db";
 import { products } from "@/db/schema";
 import { formatCurrency } from "@/lib/format";
 import { LinkButton } from "@/components/ui/Button";
 import { ActiveToggle } from "@/components/admin/ActiveToggle";
+import { Pagination } from "@/components/product/Pagination";
 
-export default async function AdminProductsPage() {
+// Table rows are light (a 40px thumbnail each), so a page can hold more than
+// the storefront grid.
+const ADMIN_PRODUCTS_PER_PAGE = 25;
+
+export default async function AdminProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ pagina?: string }>;
+}) {
+  const params = await searchParams;
+  const [{ total }] = await db.select({ total: count() }).from(products);
+  const totalPages = Math.max(1, Math.ceil(total / ADMIN_PRODUCTS_PER_PAGE));
+  const page = Math.min(Math.max(1, Math.trunc(Number(params.pagina)) || 1), totalPages);
+
   const allProducts = await db.query.products.findMany({
-    orderBy: desc(products.createdAt),
+    // Many products share a createdAt (bulk loads), so `id` keeps the order
+    // stable and stops rows from repeating or vanishing between pages.
+    orderBy: [desc(products.createdAt), desc(products.id)],
+    limit: ADMIN_PRODUCTS_PER_PAGE,
+    offset: (page - 1) * ADMIN_PRODUCTS_PER_PAGE,
     with: {
       category: true,
       images: { orderBy: (img, { asc }) => [asc(img.position)], limit: 1 },
@@ -19,7 +37,10 @@ export default async function AdminProductsPage() {
   return (
     <div>
       <div className="mb-8 flex items-center justify-between">
-        <h1 className="font-display text-2xl text-brand-900">Productos</h1>
+        <div>
+          <h1 className="font-display text-2xl text-brand-900">Productos</h1>
+          {total > 0 && <p className="mt-1 text-sm text-muted">{total} en total</p>}
+        </div>
         <LinkButton href="/admin/productos/nuevo">+ Nuevo producto</LinkButton>
       </div>
 
@@ -78,6 +99,8 @@ export default async function AdminProductsPage() {
           </tbody>
         </table>
       </div>
+
+      <Pagination page={page} totalPages={totalPages} basePath="/admin/productos" />
     </div>
   );
 }
