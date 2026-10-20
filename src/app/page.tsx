@@ -79,10 +79,11 @@ export default async function Home() {
           </div>
           <Reveal direction="none" delay={150} className="mx-auto">
             <Image
-              src="/hecho-cuero-logo.png"
+              src="/hecho-cuero-logo-640.webp"
               alt="Hecho Cuero — Cuero 100% argentino"
               width={340}
               height={340}
+              unoptimized
               className="animate-float-slow h-auto w-64 rounded-full sm:w-80"
               priority
             />

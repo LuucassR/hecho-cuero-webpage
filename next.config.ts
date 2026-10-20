@@ -1,11 +1,16 @@
 import type { NextConfig } from "next";
+import { MAX_DIMENSION, VARIANT_WIDTHS } from "./src/lib/image-variants";
 
 const nextConfig: NextConfig = {
   images: {
-    // Uploaded images are served from /api/blob/file and never change (each
-    // upload gets a new random pathname), so keep optimized variants for 31
-    // days instead of the 4h default to avoid paying to re-transform them.
-    minimumCacheTTL: 2678400,
+    // No Vercel image optimization: uploads are stored pre-resized and the
+    // loader just picks a stored copy (see src/lib/image-loader.ts).
+    loader: "custom",
+    loaderFile: "./src/lib/image-loader.ts",
+    // Limit srcset candidates to the widths that exist in Blob, so no two
+    // candidates resolve to the same file.
+    imageSizes: [VARIANT_WIDTHS[0]],
+    deviceSizes: [...VARIANT_WIDTHS.slice(1), MAX_DIMENSION],
   },
 };
 
