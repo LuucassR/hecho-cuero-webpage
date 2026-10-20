@@ -1,6 +1,7 @@
 import { del, get, put } from "@vercel/blob";
 import { BLOB_ACCESS, BLOB_SERVE_PREFIX, INCOMING_FOLDER } from "./blob-access";
-import { toOptimizedWebp } from "./image-processing";
+import { toOptimizedWebp, toWebpVariant } from "./image-processing";
+import { VARIANT_WIDTHS, variantPath } from "./image-variants";
 
 // The Blob store is private: browsers can't load its URLs, so files are
 // served through /api/blob/file/<pathname>, which reads them with the
@@ -28,9 +29,25 @@ function toPathname(servedPath: string) {
   return decodeURIComponent(servedPath.slice(BLOB_SERVE_PREFIX.length));
 }
 
-// Converts an image to an optimized WebP and stores it under `folder`.
-// `name` is only a readable hint; a random suffix keeps pathnames unique.
-// Returns the local path to store in the database.
+// Stores the smaller copies src/lib/image-loader.ts points to, next to the
+// original at `pathname`. Their pathnames derive from the original's, so they
+// get no random suffix; overwriting keeps the backfill script re-runnable.
+export async function storeImageVariants(pathname: string, webp: Buffer) {
+  await Promise.all(
+    VARIANT_WIDTHS.map(async (width) =>
+      put(variantPath(pathname, width), await toWebpVariant(webp, width), {
+        access: BLOB_ACCESS,
+        addRandomSuffix: false,
+        allowOverwrite: true,
+        contentType: "image/webp",
+      }),
+    ),
+  );
+}
+
+// Converts an image to an optimized WebP and stores it, plus its variants,
+// under `folder`. `name` is only a readable hint; a random suffix keeps
+// pathnames unique. Returns the local path to store in the database.
 export async function storeOptimizedImage(
   folder: string,
   name: string,
@@ -43,6 +60,7 @@ export async function storeOptimizedImage(
     addRandomSuffix: true,
     contentType: "image/webp",
   });
+  await storeImageVariants(blob.pathname, webp);
   return toServedPath(blob.url)!;
 }
 
@@ -65,9 +83,12 @@ export async function optimizeUploadedImage(blobUrl: string, folder: string): Pr
   }
 }
 
-// Deletes the Blob file behind a stored path. Ignores paths that aren't Blob
-// files (e.g. images in /public) and failures, which would only leave an orphan.
+// Deletes the Blob file behind a stored path, and its variants. Ignores paths
+// that aren't Blob files (e.g. images in /public) and failures, which would
+// only leave an orphan.
 export async function deleteStoredFile(path: string | null | undefined) {
   if (!path?.startsWith(BLOB_SERVE_PREFIX)) return;
-  await del(toPathname(path)).catch(() => undefined);
+  const pathname = toPathname(path);
+  const variants = pathname.endsWith(".webp") ? VARIANT_WIDTHS.map((w) => variantPath(pathname, w)) : [];
+  await del([pathname, ...variants]).catch(() => undefined);
 }

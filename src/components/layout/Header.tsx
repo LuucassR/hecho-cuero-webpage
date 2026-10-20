@@ -17,10 +17,11 @@ export function Header({ categories }: { categories: NavCategory[] }) {
       <Container className="flex h-20 items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-3">
           <Image
-            src="/hecho-cuero-logo.png"
+            src="/hecho-cuero-logo-144.webp"
             alt="Hecho Cuero"
             width={48}
             height={48}
+            unoptimized
             className="h-12 w-12 rounded-full object-cover"
             priority
           />
